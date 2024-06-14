@@ -3,6 +3,8 @@ class RunGame {
 
   private canvas: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
+  private character: Character;
+  private keyValue: string = '';
 
   constructor(canvasId: string, width: number, height: number) {
     this.canvas = document.createElement("canvas");
@@ -18,16 +20,45 @@ class RunGame {
     }
 
     this.context = context;
+    this.character = new Character("red", 30, 30, 40, 40);
+
+    window.addEventListener('keydown', this.handleKeydown.bind(this));
+
   } 
 
-  clear(): void {
+  public clear(): void {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  drawRect(x: number, y: number, w: number, h: number, color: string): void {
-    this.context.fillStyle = color;
-    this.context.fillRect(x, y, w, h);
+  public start(): void {
+    this.gameLoop();
   }
+
+  private gameLoop(): void {
+    setTimeout(()=>{
+      this.clear();
+
+      this.character.move(this.keyValue, this.canvas.width, this.canvas.height);
+      this.character.draw(this.context);
+
+      this.gameLoop();
+    }, 100)
+  }
+
+  private handleKeydown(event: KeyboardEvent): void {
+    const key = event.key;
+
+    const keyMap: { [key: string] : string } = {
+      'ArrowUp' : 'U',
+      'ArrowDown' : 'D',
+      'ArrowLeft' : 'L',
+      'ArrowRight': 'R'
+    }
+
+    this.keyValue = keyMap[key];
+
+  }
+
 }
 
 class Character {
@@ -35,79 +66,39 @@ class Character {
   private color: string;
   private x: number;
   private y: number;
+  private width: number;
+  private height: number;
 
-  constructor(color: string, x: number, y: number) {
+  constructor(color: string, x: number, y: number, width: number, height: number) {
     this.color = color;
     this.x = x;
     this.y = y;
+    this.width = width;
+    this.height = height;
   }
-}
 
-let keyValue = '';
-
-function exe(g: RunGame, x: number, y: number) {
-  setTimeout(()=>{
-    g.clear();
-    g.drawRect(x, y, 40, 40, "red")
-    
-    if (x === (200 - 40) || x === 0) {
-      x = x;
-    } else if (keyValue === 'L') {
-      x -= 1;
-    } else if (keyValue === 'R') {
-      x += 1;
-    }
-
-    if (y === (200 - 40) || y === 0) {
-      y = y;
-    } else if (keyValue === 'U') {
-      y -= 1;
-    } else if (keyValue === 'D') {
-      y += 1;
-    }
-
-
-    exe(g, x, y);
-  }, 100)
-}
-
-window.addEventListener('keydown', handleKeydown);
-
-function handleKeydown(event: KeyboardEvent) {
-  let key = event.key;
-  console.log(key);
-  if (isUp(key)) {
-    keyValue = 'U'
-  } else if (isDown(key)) {
-    keyValue = 'D'
-  } else if (isLeft(key)) {
-    keyValue = 'L'
-  } else if (isRight(key)) {
-    keyValue = 'R'
+  public draw(context: CanvasRenderingContext2D): void {
+    context.fillStyle = this.color;
+    context.fillRect(this.x, this.y, this.width, this.height);
   }
-}
 
+  public move(keyValue: string, canvasWidth: number, canvasHeight: number): void {
+    const speed = 2;
 
-function isUp(key: string) {
-  return key === 'ArrowUp'
-}
-function isDown(key: string) {
-  return key === 'ArrowDown'
-}
-function isLeft(key: string) {
-  return key === 'ArrowLeft'
-}
-function isRight(key: string) {
-  return key === 'ArrowRight'
+    if (keyValue === 'L' && this.x > 0) {
+      this.x -= speed;
+    } else if (keyValue === 'R' && this.x < canvasWidth - this.width) {
+      this.x += speed;
+    } else if (keyValue === 'U' && this.y > 0) {
+      this.y -= speed;
+    } else if (keyValue === 'D' && this.y < canvasHeight - this.height) {
+      this.y += speed;
+    }
+  }
+
 }
 
 function startGame() {
   const runGame = new RunGame('game', 200, 200);
-
-  let x: number;
-  let y: number;
-  x = 30;
-  y = 30;
-
-  exe(runGame, x, y);
+  runGame.start();
 }
