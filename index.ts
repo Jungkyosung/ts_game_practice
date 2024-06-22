@@ -4,6 +4,8 @@ class RunGame {
   private canvas: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
   private character: Character;
+  private structureArr: Array<Structure> = [];
+  
   private keyValue: string = '';
 
   constructor(canvasId: string, width: number, height: number) {
@@ -37,7 +39,18 @@ class RunGame {
   private gameLoop(): void {
     setTimeout(()=>{
       this.clear();
+      
+      if (this.structureArr.length === 0) {
+        this.structureArr.push(new Structure("green", 200, 0, 10, 50));
+      }
 
+      this.structureArr[0].move();
+      this.structureArr[0].draw(this.context);
+      
+      if (this.structureArr[0].isScreenover()) {
+        this.structureArr.pop();
+      }
+      
       this.character.move(this.keyValue, this.canvas.width, this.canvas.height);
       this.character.draw(this.context);
 
@@ -97,6 +110,46 @@ class Character {
     } else if (keyValue === 'D' && this.y < canvasHeight - this.height) {
       this.y += speed;
     }
+  }
+
+}
+
+class Structure {
+
+  private color: string;
+  private x: number;
+  private y: number;
+  private width: number;
+  private height: number;
+
+  //맵 그리기 
+
+  constructor(color: string, x:number, y:number, width: number, height: number) {
+    this.color = color;
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+  }
+
+  public draw(context: CanvasRenderingContext2D): void {
+    context.fillStyle = this.color;
+    context.fillRect(this.x,this.y,this.width,this.height);
+  }
+
+  public move(): void {
+    const speed = 4;
+    if(this.x === 0) {
+      this.width -= speed;
+      return
+    } 
+    this.x = this.x - speed;
+
+  }
+
+  public isScreenover(): boolean {
+
+    return this.x <= 0 && this.width <= 0;
   }
 
 }
