@@ -5,7 +5,8 @@ class RunGame {
   private context: CanvasRenderingContext2D;
   private character: Character;
   private structureArr: Array<Structure> = [];
-  
+  private isJump: boolean = false;
+  private gravity: number = -1;
   private keyValue: string = '';
 
   constructor(canvasId: string, width: number, height: number) {
@@ -51,8 +52,27 @@ class RunGame {
         this.structureArr.pop();
       }
       
-      this.character.move(this.keyValue, this.canvas.width, this.canvas.height);
-      this.character.draw(this.context);
+      if (this.keyValue === 'J') {
+        this.isJump = true;
+      }
+
+      if (this.isJump) {
+        this.gravity = ((this.gravity * 100) + (0.1 * 100)) / 100;
+        this.character.move('J', this.canvas.width, this.canvas.height, this.gravity);
+        this.character.draw(this.context);
+        console.log('this.gravity:', this.gravity)
+      } else {
+        this.character.move(this.keyValue, this.canvas.width, this.canvas.height, this.gravity);
+        this.character.draw(this.context);
+      }
+
+      if (this.gravity >= 1) {
+        this.isJump = false;
+        this.gravity = -1;
+        this.keyValue = ''
+      }
+
+
 
       this.gameLoop();
     }, 100)
@@ -68,7 +88,7 @@ class RunGame {
       'ArrowDown' : 'D',
       'ArrowLeft' : 'L',
       'ArrowRight': 'R',
-      ' ': 'space'
+      ' ': 'J'
     }
 
     this.keyValue = keyMap[key];
@@ -98,7 +118,7 @@ class Character {
     context.fillRect(this.x, this.y, this.width, this.height);
   }
 
-  public move(keyValue: string, canvasWidth: number, canvasHeight: number): void {
+  public move(keyValue: string, canvasWidth: number, canvasHeight: number, gravity: number): void {
     const speed = 2;
 
     if (keyValue === 'L' && this.x > 0) {
@@ -109,6 +129,8 @@ class Character {
       this.y -= speed;
     } else if (keyValue === 'D' && this.y < canvasHeight - this.height) {
       this.y += speed;
+    } else if (keyValue === 'J') {
+      this.y = (gravity * gravity) * (canvasHeight - this.height);  //
     }
   }
 
