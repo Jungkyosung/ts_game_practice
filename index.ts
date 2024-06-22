@@ -20,11 +20,11 @@ class RunGame {
     }
 
     this.context = context;
-    this.character = new Character("red", 30, 30, 40, 40);
+    this.character = new Character("red", 30, this.canvas.height - 40, 40, 40);
 
     window.addEventListener('keydown', this.handleKeydown.bind(this));
 
-  } 
+  }
 
   public clear(): void {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -48,11 +48,14 @@ class RunGame {
   private handleKeydown(event: KeyboardEvent): void {
     const key = event.key;
 
+    console.log('key : ', key + '0');
+
     const keyMap: { [key: string] : string } = {
       'ArrowUp' : 'U',
       'ArrowDown' : 'D',
       'ArrowLeft' : 'L',
-      'ArrowRight': 'R'
+      'ArrowRight': 'R',
+      ' ': 'space'
     }
 
     this.keyValue = keyMap[key];
