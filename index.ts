@@ -37,6 +37,43 @@ class RunGame {
     this.gameLoop();
   }
 
+  public isOverlap () : Boolean {
+    let overlap:Boolean = false;
+    
+    const c = this.character.location;
+    const cLeft = c.x;
+    const cRight = c.x + c.width;
+    const cTop = c.y;
+    const cBottom = c.y + c.height;
+    
+    const sArr : Array<Structure> = this.structureArr;
+
+    sArr.forEach(element => {
+      const s = element.location;
+      const sLeft = s.x;
+      const sRight = s.x + s.width;
+      const sTop = s.y;
+      const sBottom = s.y + s.height;
+
+      overlap = 
+        (
+          // 가로 충돌
+          sLeft <= cRight &&
+          sRight >= cLeft &&
+          // 세로 충돌
+          sTop <= cBottom &&
+          sBottom >= cTop
+        );
+
+      if (overlap) {
+        console.log('충돌 >>', overlap);
+        return;
+      }
+    });
+
+    return overlap;
+  }
+
   private gameLoop(): void {
     setTimeout(()=>{
       this.clear();
@@ -72,7 +109,9 @@ class RunGame {
         this.keyValue = ''
       }
 
-
+      if (this.isOverlap()) { // 죽음
+        return;
+      }
 
       this.gameLoop();
     }, 100)
@@ -134,6 +173,14 @@ class Character {
     }
   }
 
+  public get location() {
+    return {
+      x: this.x,
+      y: this.y,
+      width: this.width,
+      height: this.height,
+    };
+  }
 }
 
 class Structure {
@@ -174,6 +221,14 @@ class Structure {
     return this.x <= 0 && this.width <= 0;
   }
 
+  public get location() {
+    return {
+      x: this.x,
+      y: this.y,
+      width: this.width,
+      height: this.height
+    };
+  }
 }
 
 function startGame() {
