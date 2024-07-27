@@ -5,6 +5,7 @@ class RunGame {
   private context: CanvasRenderingContext2D;
   private character: Character;
   private structureArr: Array<Structure> = [];
+  private backGround: BackGround;
   private isJump: boolean = false;
   private gravity: number = -1;
   private keyValue: string = '';
@@ -24,6 +25,7 @@ class RunGame {
 
     this.context = context;
     this.character = new Character("red", 30, this.canvas.height - 40, 40, 40);
+    this.backGround = new BackGround("./static/back1.jpg", this.context, 0, 0, 400, 200, 0, 0, 400, 200)
 
     window.addEventListener('keydown', this.handleKeydown.bind(this));
 
@@ -78,8 +80,11 @@ class RunGame {
     setTimeout(()=>{
       this.clear();
       
+      this.backGround.draw(this.context);
+      this.backGround.move();
+
       if (this.structureArr.length === 0) {
-        this.structureArr.push(new Structure("green", 200, 0, 10, 50));
+        this.structureArr.push(new Structure("green", 400, 0, 10, 50));
       }
 
       this.structureArr[0].move();
@@ -231,7 +236,57 @@ class Structure {
   }
 }
 
+class BackGround {
+
+  private img = new Image();
+  private context: CanvasRenderingContext2D; 
+  private dx: number;
+  private dy: number;
+  private dWidth: number;
+  private dHeight: number;
+  private sx: number;
+  private sy: number;
+  private sWidth: number;
+  private sHeight: number; 
+
+  constructor(
+    src: string, 
+    context: CanvasRenderingContext2D,
+    dx: number, 
+    dy: number,
+    dWidth: number,
+    dHeight: number,
+    sx: number,
+    sy: number,
+    sWidth: number,
+    sHeight: number
+  ) {
+    this.img.src = src;
+    this.context = context;
+    this.dx = dx;
+    this.dy = dy;
+    this.dWidth = dWidth;
+    this.dHeight = dHeight;
+    this.sx = sx;
+    this.sy = sy;
+    this.sWidth = sWidth;
+    this.sHeight = sHeight;
+  }
+
+  public draw(context: CanvasRenderingContext2D): void {
+    context.drawImage(this.img, this.sx, this.sy, this.sWidth, this.sHeight, this.dx, this.dy, this.dWidth, this.dHeight);
+  }
+
+
+  public move() {
+    this.sx++;
+  }
+
+
+
+}
+
 function startGame() {
-  const runGame = new RunGame('game', 200, 200);
+  const runGame = new RunGame('game', 400, 200);
   runGame.start();
 }
